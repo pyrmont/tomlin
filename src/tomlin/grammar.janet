@@ -123,11 +123,20 @@
     "-nan" math/nan
     "+nan" math/nan
     "nan"  math/nan
-    (if-let [number (scan-number input)]
-      number
-      (case (string/slice input 0 2)
-        "0o" (scan-number (string "8r" (string/slice input 2)))
-        "0b" (scan-number (string "2r" (string/slice input 2)))))))
+    (cond
+      (string/has-prefix? "0b" input)
+      (int/s64 (scan-number (string "2r" (string/slice input 2))))
+
+      (string/has-prefix? "0o" input)
+      (int/s64 (scan-number (string "8r" (string/slice input 2))))
+
+      (string/has-prefix? "0x" input)
+      (int/s64 (scan-number (string "16r" (string/slice input 2))))
+
+      (string/check-set "-+0123456789" input)
+      (int/s64 input)
+
+      (scan-number input))))
 
 
 (defn- to-key [input]

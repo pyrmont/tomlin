@@ -16,7 +16,7 @@
                     :hour 7 :mins 32 :secs 0
                     :offset {:hour -8 :mins 0}}}
      :database {:enabled true
-                :ports [8001 8001 8002]
+                :ports [(int/s64 8001) (int/s64 8001) (int/s64 8002)]
                 :data [["delta" "phi"] [3.14]]
                 :temp_targets {:cpu 79.5 :case 72.0}}
      :servers {:alpha {:ip "10.0.0.1" :role "frontend"}
@@ -53,16 +53,16 @@
 
 (deftest numbers
   (def expect
-    {:int1 99
-     :int2 42
-     :int3 0
-     :int4 -17
-     :hex1 3735928559
-     :hex2 3735928559
-     :hex3 3735928559
-     :oct1 342391
-     :oct2 493
-     :bin1 214
+    {:int1 (int/s64 99)
+     :int2 (int/s64 42)
+     :int3 (int/s64 0)
+     :int4 (int/s64 -17)
+     :hex1 (int/s64 3735928559)
+     :hex2 (int/s64 3735928559)
+     :hex3 (int/s64 3735928559)
+     :oct1 (int/s64 342391)
+     :oct2 (int/s64 493)
+     :bin1 (int/s64 214)
      :float1 1.0
      :float2 3.1415
      :float3 -0.01
