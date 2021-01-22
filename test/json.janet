@@ -6,7 +6,7 @@
 (defn- example [basename]
   (-> (string "test/examples/" basename ".toml")
       (slurp)
-      (tomlin/toml->table)))
+      (tomlin/toml->janet)))
 
 
 (defn- one-line [s]
@@ -43,7 +43,7 @@
                                          "cpu": { "type": "float",
                                                   "value": "79.5" } } },
          "owner": { "dob": { "type": "offset datetime",
-                             "value": "1979-05-27T07:32:00-8:00" },
+                             "value": "1979-05-27T07:32:00-08:00" },
                     "name": { "type": "string",
                               "value": "Tom Preston-Werner" } },
          "servers": { "alpha": { "ip": { "type": "string",
@@ -56,12 +56,12 @@
                                           "value": "backend" } } },
          "title": { "type": "string",
                     "value": "TOML Example" } }`))
-  (def actual (json/convert (example "basic")))
+  (def actual (json/janet->json (example "basic")))
   (is (= expect actual)))
 
 
 (deftest comments
-  (def actual (json/convert (example "comments")))
+  (def actual (json/janet->json (example "comments")))
   (is (= "{  }" actual)))
 
 
@@ -92,13 +92,13 @@
          "not3": { "type": "float", "value": "nan" },
          "oct1": { "type": "integer", "value": "342391" },
          "oct2": { "type": "integer", "value": "493" } }`))
-  (def actual (json/convert (example "numbers")))
+  (def actual (json/janet->json (example "numbers")))
   (is (= expect actual)))
 
 
 (deftest strings
   (def expect
-    (string "{ \"lines\": { \"type\": \"string\", \"value\": \"The first newline is\\ntrimmed in raw strings.\\nAll other whitespace\\nis preserved.\\n\" }, "
+    (string "{ \"lines\": { \"type\": \"string\", \"value\": \"The first newline is\\\\ntrimmed in raw strings.\\\\nAll other whitespace\\\\nis preserved.\\\\n\" }, "
               "\"path\": { \"type\": \"string\", \"value\": \"C:\\\\Users\\\\nodejs\\\\templates\" }, "
               "\"path2\": { \"type\": \"string\", \"value\": \"\\\\\\\\User\\\\admin$\\\\system32\" }, "
               "\"quoted\": { \"type\": \"string\", \"value\": \"Tom \\\"Dubs\\\" Preston-Werner\" }, "
@@ -106,12 +106,12 @@
               "\"regex\": { \"type\": \"string\", \"value\": \"<\\\\i\\\\c*\\\\s*>\" }, "
               "\"str1\": { \"type\": \"string\", \"value\": \"I'm a string.\" }, "
               "\"str2\": { \"type\": \"string\", \"value\": \"You can \\\"quote\\\" me.\" }, "
-              "\"str3\": { \"type\": \"string\", \"value\": \"Name\\tJos\\xC3\\xA9\\nLoc\\tSF.\" }, "
-              "\"str4\": { \"type\": \"string\", \"value\": \"Roses are red\\nViolets are blue\" }, "
+              "\"str3\": { \"type\": \"string\", \"value\": \"Name\\\\tJos\\u00e9\\\\nLoc\\\\tSF.\" }, "
+              "\"str4\": { \"type\": \"string\", \"value\": \"Roses are red\\\\nViolets are blue\" }, "
               "\"str5\": { \"type\": \"string\", \"value\": \"The quick brown fox jumps over the lazy dog.\" }, "
               "\"str6\": { \"type\": \"string\", \"value\": \"Here are fifteen quotation marks: \\\"\\\"\\\"\\\"\\\"\\\"\\\"\\\"\\\"\\\"\\\"\\\"\\\"\\\"\\\".\" }, "
               "\"str7\": { \"type\": \"string\", \"value\": \"\\\"This,\\\" she said, \\\"is just a pointless statement.\\\"\" } }"))
-  (def actual (json/convert (example "strings")))
+  (def actual (json/janet->json (example "strings")))
   (is (= expect actual)))
 
 
@@ -131,10 +131,10 @@
          "odt1": { "type": "offset datetime",
                    "value": "1979-05-27T07:32:00Z" },
          "odt2": { "type": "offset datetime",
-                   "value": "1979-05-27T00:32:00-7:00" },
+                   "value": "1979-05-27T00:32:00-07:00" },
          "odt3": { "type": "offset datetime",
-                   "value": "1979-05-27T00:32:00.999999-7:00" } }`))
-  (def actual (json/convert (example "datetimes")))
+                   "value": "1979-05-27T00:32:00.999999-07:00" } }`))
+  (def actual (json/janet->json (example "datetimes")))
   (is (= expect actual)))
 
 (run-tests!)

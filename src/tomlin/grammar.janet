@@ -1,26 +1,6 @@
-(def- escaped-whitespace
-  (peg/compile
-    ~{:main (% (* (? :nl) (any (+ :escaped-ws (<- 1)))))
-      :ws (set "\t ")
-      :nl (+ "\n" "\r\n")
-      :escaped-ws (* "\\" :nl (any (+ :nl :ws)))}))
-
-
-(def- leading-whitespace
-  (peg/compile
-    ~{:main (% (* (? :nl) (any (<- 1))))
-      :nl (+ "\n" "\r\n")}))
-
-
-(defn- remove-whitespace [delim input]
-  (case delim
-    `"""` (first (peg/match escaped-whitespace input))
-    `'''` (first (peg/match leading-whitespace input))))
-
-
-(defn- unescape-string [input]
-  (defn unescape [s]
-    (def c (scan-number (string "0x" s)))
+(defn- unescape [input]
+  (defn codepoint->utf8 [s]
+    (def c (scan-number (string "0x" (string/slice s 2))))
     (cond
       # 1 byte variant (0xxxxxxx)
       (< c 0x80)
@@ -43,34 +23,15 @@
                      (bor 0x80 (band 0x3F (brshift c 12)))
                      (bor 0x80 (band 0x3F (brshift c 6)))
                      (bor 0x80 (band 0x3F c)))
-      (error (string "Invalid Unicode point: " c))))
-  (def replacer
-    (peg/compile
-      ~{:main (% (any (+ :escaped-char :char)))
-        :escaped-char (+ (* "\\u" (/ (<- 4) ,unescape))
-                         (* "\\U" (/ (<- 8) ,unescape))
-                         (/ (<- "\\\"") "\"")
-                         (/ (<- "\\\\") "\\")
-                         (/ (<- "\\b")  "\x08")
-                         (/ (<- "\\f")  "\f")
-                         (/ (<- "\\n")  "\n")
-                         (/ (<- "\\r")  "\r")
-                         (/ (<- "\\t")  "\t"))
-        :char (<- 1)}))
-  (first (peg/match replacer input)))
-
-
-(defn- to-string [delim input]
-  (case delim
-    `"`   (->> (string/slice input 1 -2)
-               (unescape-string))
-    `'`   (string/slice input 1 -2)
-    `"""` (->> (string/slice input 3 -4)
-               (remove-whitespace delim)
-               (unescape-string))
-    `'''` (->> (string/slice input 3 -4)
-               (remove-whitespace delim))
-    input))
+      (error (string "invalid codepoint value: " c))))
+  (case input
+    "\\\\" "\\"
+    "\\b"  "\x08"
+    "\\f"  "\f"
+    "\\n"  "\n"
+    "\\r"  "\r"
+    "\\t"  "\t"
+    (codepoint->utf8 input)))
 
 
 (defn- to-boolean [input]
@@ -83,8 +44,15 @@
   input)
 
 
-(defn- to-table [input]
-  (apply table input))
+(defn- to-struct [input]
+  (def res @{})
+  (var i 0)
+  (while (< i (length input))
+    (def ks (get input i))
+    (def v (get input (++ i)))
+    (put-in res ks v)
+    (++ i))
+  (table/to-struct res))
 
 
 (defn- to-datetime [input]
@@ -133,16 +101,14 @@
       (string/has-prefix? "0x" input)
       (int/s64 (scan-number (string "16r" (string/slice input 2))))
 
-      (string/check-set "-+0123456789" input)
+      (string/check-set "-+0123456789_" input)
       (int/s64 input)
 
       (scan-number input))))
 
 
-(defn- to-key [input]
-  (-> (get input 0)
-      (to-string input)
-      keyword))
+(defn- to-key [& input]
+  (map keyword input))
 
 
 (def- toml-grammar
@@ -184,7 +150,7 @@
     # Valid Characters
 
     :non-ascii (+ :bmp-chars :smp-chars)
-    :non-eol   (+ "\t" (range "\x20\x7F") :non-ascii)
+    :non-eol   (+ "\t" (range "\x20\x7E") :non-ascii)
 
     # Comments
 
@@ -194,10 +160,10 @@
 
     :keyval (* :key :keyval-sep :val)
 
-    :key (/ (<- (+ :dotted-key :simple-key)) ,to-key)
-    :simple-key (+ :quoted-key :unquoted-key)
+    :key (/ (+ :dotted-key :simple-key) ,to-key)
+    :simple-key (% (+ :quoted-key :unquoted-key))
 
-    :unquoted-key (some (+ :a :d "-" "_"))
+    :unquoted-key '(some (+ :a :d "-" "_"))
     :quoted-key (+ :basic-string :literal-string)
 
     :dotted-key (* :simple-key (some (* :dot-sep :simple-key)))
@@ -205,32 +171,33 @@
 
     :keyval-sep (* :ws "=" :ws)
 
-    :val (+ (/ (<- :string)          ,to-string)
+    :val (+ (% :string)
             (/ (<- :boolean)         ,to-boolean)
             (/ (group :array)        ,to-array)
-            (/ (group :inline-table) ,to-table)
+            (/ (group :inline-table) ,to-struct)
             (/ (<- :date-time)       ,to-datetime)
             (/ (<- :float)           ,to-number)
             (/ (<- :integer)         ,to-number))
 
     # String
 
-    :string (+ (* :ml-basic-string (constant `"""`))
-               (* :basic-string (constant `"`))
-               (* :ml-literal-string (constant `'''`))
-               (* :literal-string (constant `'`)))
+    :string (+ :ml-basic-string
+               :basic-string
+               :ml-literal-string
+               :literal-string)
 
     :basic-string (* `"` (any :basic-char) `"`)
 
     :basic-char (+ :basic-unescaped :escaped)
-    :basic-unescaped (+ :ws-char "\x21" (range "\x23\x5B") (range "\x5D\x7E")
-                        :non-ascii)
-    :escaped (* :escape :escape-seq-char)
+    :basic-unescaped '(+ :ws-char "\x21" (range "\x23\x5B") (range "\x5D\x7E")
+                         :non-ascii)
+    :escaped (+ (cmt '(* :escape :escape-seq-char) ,unescape) :escaped-quote)
 
     :escape "\\"
-    :escape-seq-char (+ `"` "\\" "b" "f" "n" "r" "t"
+    :escape-seq-char (+ "\\" "b" "f" "n" "r" "t"
                         (* "u" (4 :h))
                         (* "U" (8 :h)))
+    :escaped-quote (* "\\" '`"`)
 
     # Multiline Basic String
 
@@ -239,17 +206,18 @@
     :mlb-body (* (any :mlb-content)
                  (any (* :mlb-quotes (some :mlb-content)))
                  (? :mlb-quotes))
-    :mlb-content (+ :mlb-char :nl :mlb-escaped-nl)
+    :mlb-content (+ :mlb-char :mlb-nl :mlb-escaped-nl)
     :mlb-char (+ :mlb-unescaped :escaped)
-    :mlb-quotes (+ (* (2 `"`) (> 0 (+ (! `"`) `"""`)))
-                   (* (1 `"`) (> 0 (+ (! `"`) `"""`))))
+    :mlb-nl ':nl
+    :mlb-quotes '(+ (* (2 `"`) (> 0 (+ (! `"`) `"""`)))
+                    (* (1 `"`) (> 0 (+ (! `"`) `"""`))))
     :mlb-unescaped :basic-unescaped
     :mlb-escaped-nl (* :escape :ws :nl (any (+ :ws-char :nl)))
 
     # Literal String
 
     :literal-string (* `'` (any :literal-char) `'`)
-    :literal-char (+ "\x09" (range "\x20\x26") (range "\x28\x7E") :non-ascii)
+    :literal-char '(+ "\x09" (range "\x20\x26") (range "\x28\x7E") :non-ascii)
 
     # Multline Literal String
 
@@ -258,10 +226,11 @@
     :mll-body (* (any :mll-content)
                  (any (* :mll-quotes (some :mll-content)))
                  (? :mll-quotes))
-    :mll-content (+ :mll-char :nl)
+    :mll-content (+ :mll-char :mll-nl)
     :mll-char :literal-char
-    :mll-quotes (+ (* (2 `'`) (> 0 (+ (! `'`) `'''`)))
-                   (* (1 `'`) (> 0 (+ (! `'`) `'''`))))
+    :mll-nl ':nl
+    :mll-quotes '(+ (* (2 `'`) (> 0 (+ (! `'`) `'''`)))
+                    (* (1 `'`) (> 0 (+ (! `'`) `'''`))))
 
     # Integer
 

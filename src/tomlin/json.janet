@@ -1,4 +1,63 @@
-(varfn convert* :private [val])
+(varfn janet->json* :private [val])
+
+
+(defn- dekeyword [kw]
+  (def str (string kw))
+  (case (get str 0)
+    34 (string/slice str 1 -2)
+    39 (string/slice str 1 -2)
+    str))
+
+
+(defn- escape [s]
+  (def b @"")
+  (var i 0)
+  (while (< i (length s))
+    (def c (get s i))
+    (->> (cond
+           (= c 0x08)
+           "\\\\b"
+           (= c 0x09)
+           "\\\\t"
+           (= c 0x0A)
+           "\\\\n"
+           (= c 0x0C)
+           "\\\\f"
+           (= c 0x0D)
+           "\\\\r"
+           (= c 0x22)
+           "\\\""
+           (= c 0x5C)
+           "\\\\"
+           (= c 0x7F)
+           (string/format "\\u%04x" c)
+           (< c 0x20)
+           (string/format "\\\\u%04x" c)
+           # 1-byte variant (0xxxxxxx)
+           (< c 0x80)
+           (string/format "%c" c)
+           # 2-byte variant (110xxxxx 10xxxxxx)
+           (< 0xBF c 0xE0)
+           (string/format "\\u%04x"
+                          (bor (blshift (band c 0x1F) 6)
+                               (band (get s (++ i)) 0x3F)))
+           # 3-byte variant (1110xxxx 10xxxxxx 10xxxxxx)
+           (< c 0xF0)
+           (string/format "\\u%04x"
+                          (bor (blshift (band c 0x0F) 12)
+                               (blshift (band (get s (++ i)) 0x3F) 6)
+                               (band (get s (++ i)) 0x3F)))
+           # 4-byte variant (11110xxx 10xxxxxx 10xxxxxx 10xxxxxx)
+           (< c 0xF8)
+           (string/format "\\U%08x"
+                          (bor (blshift (band c 0x07) 18)
+                               (blshift (band (get s (++ i)) 0x3F) 12)
+                               (blshift (band (get s (++ i)) 0x3F) 6)
+                               (band (get s (++ i)) 0x3F)))
+           (error (string "invalid byte:" c)))
+         (buffer/push b))
+    (++ i))
+  b)
 
 
 (defn- datetime-or-table [val]
@@ -29,6 +88,7 @@
     :core/s64 :integer
     :number   :float
     :string   :string
+    :struct   :struct
     :table    (datetime-or-table val)))
 
 
@@ -40,7 +100,7 @@
     (if first?
       (set first? false)
       (buffer/push json ", "))
-    (buffer/push json (convert* item)))
+    (buffer/push json (janet->json* item)))
   (buffer/push json " ] }")
   json)
 
@@ -49,12 +109,12 @@
   (def json @"")
   (buffer/push json `{ "type": "`)
   (buffer/push json type-name)
-  (buffer/push json `", "value": `)
+  (buffer/push json `", "value": "`)
   (buffer/push json (case type-name
-                      "float"  (string/format "\"%.16g\"" val) # Is this safe?
-                      "string" (describe val)
-                      (string `"` val `"`)))
-  (buffer/push json ` }`)
+                      "float"  (string/format "%.16g" val) # Is this safe?
+                      "string" (-> val escape)
+                      (string val)))
+  (buffer/push json `" }`)
   json)
 
 
@@ -77,7 +137,7 @@
       (buffer/push buf "Z")
       (let [hour (get offset :hour)
             mins (get offset :mins)]
-        (buffer/push buf (string/format "%+02d:%02d" hour mins)))))
+        (buffer/push buf (string/format "%+03d:%02d" hour mins)))))
   buf)
 
 
@@ -104,13 +164,13 @@
     (if first?
       (set first? false)
       (buffer/push json ", "))
-    (buffer/push json (string `"` k `": `))
-    (buffer/push json (convert* val)))
+    (buffer/push json (string `"` (-> k dekeyword escape) `": `))
+    (buffer/push json (janet->json* val)))
   (buffer/push json " }")
   json)
 
 
-(varfn convert* :private [val]
+(varfn janet->json* :private [val]
   (case (type-of-value val)
     :array    (array->json val)
     :boolean  (atomic->json val "boolean")
@@ -121,8 +181,9 @@
     :lt       (datetime->json val :lt)
     :odt      (datetime->json val :odt)
     :string   (atomic->json val "string")
+    :struct   (table->json val)
     :table    (table->json val)))
 
 
-(defn convert [val]
-  (string (convert* val)))
+(defn janet->json [val]
+  (string (janet->json* val)))

@@ -5,7 +5,7 @@
 (defn- example [basename]
   (-> (string "test/examples/" basename ".toml")
       (slurp)
-      (tomlin/toml->table)))
+      (tomlin/toml->janet)))
 
 
 (deftest basic
