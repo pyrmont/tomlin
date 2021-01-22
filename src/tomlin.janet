@@ -107,6 +107,18 @@
   ---------------------------
   ```
 
+  Date-time objects are parsed into a table. The keys for the table are:
+
+  - **:hour** (_number_): the hour;
+  - **:mins** (_number_): the minutes;
+  - **:secs** (_number_): the seconds;
+  - **:secfracs** (_number_): the fractions of a second (optional); and
+  - **:offset** (_string_ / _table_): the timezone offset (optional).
+
+  The offset may be either the string `"Z"` or a table containing `:hour` and
+  `:mins` keys. The sign of the value of `:hour` indicates whether the timezone
+  is ahead or behind.
+
   Comments are parsed but are not included in the returned data structure.
 
   This function will raise an error if the string is invalid TOML.
