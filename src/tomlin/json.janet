@@ -1,3 +1,6 @@
+## This file is for testing purposes and is not intended to be used as part of
+## the library
+
 (varfn janet->json* :private [val])
 
 
