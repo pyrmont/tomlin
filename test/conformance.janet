@@ -4,6 +4,8 @@
 
 
 (when (nil? (os/stat "specs"))
+  (print "Clone https://github.com/pyrmont/toml-specs to specs/ "
+         "to run conformance tests")
   (quit))
 
 
@@ -72,5 +74,3 @@
   (unless errored?
     (error (string toml-file)))
   (set errored? false))
-
-
