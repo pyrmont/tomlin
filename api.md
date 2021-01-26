@@ -1,8 +1,10 @@
 # Tomlin API
 
-[tomlin/toml-&gt;janet](#tomlintoml-janet)
+## tomlin
 
-## tomlin/toml-&gt;janet
+[toml-&gt;janet](#toml-janet)
+
+## toml-&gt;janet
 
 **function**  | [source][1]
 
