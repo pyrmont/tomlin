@@ -98,7 +98,7 @@
 
 (deftest strings
   (def expect
-    (string "{ \"lines\": { \"type\": \"string\", \"value\": \"The first newline is\\\\ntrimmed in raw strings.\\\\nAll other whitespace\\\\nis preserved.\\\\n\" }, "
+    (string "{ \"lines\": { \"type\": \"string\", \"value\": \"The first newline is\\ntrimmed in raw strings.\\nAll other whitespace\\nis preserved.\\n\" }, "
               "\"path\": { \"type\": \"string\", \"value\": \"C:\\\\Users\\\\nodejs\\\\templates\" }, "
               "\"path2\": { \"type\": \"string\", \"value\": \"\\\\\\\\User\\\\admin$\\\\system32\" }, "
               "\"quoted\": { \"type\": \"string\", \"value\": \"Tom \\\"Dubs\\\" Preston-Werner\" }, "
@@ -106,8 +106,8 @@
               "\"regex\": { \"type\": \"string\", \"value\": \"<\\\\i\\\\c*\\\\s*>\" }, "
               "\"str1\": { \"type\": \"string\", \"value\": \"I'm a string.\" }, "
               "\"str2\": { \"type\": \"string\", \"value\": \"You can \\\"quote\\\" me.\" }, "
-              "\"str3\": { \"type\": \"string\", \"value\": \"Name\\\\tJos\\u00e9\\\\nLoc\\\\tSF.\" }, "
-              "\"str4\": { \"type\": \"string\", \"value\": \"Roses are red\\\\nViolets are blue\" }, "
+              "\"str3\": { \"type\": \"string\", \"value\": \"Name\\tJos\\u00e9\\nLoc\\tSF.\" }, "
+              "\"str4\": { \"type\": \"string\", \"value\": \"Roses are red\\nViolets are blue\" }, "
               "\"str5\": { \"type\": \"string\", \"value\": \"The quick brown fox jumps over the lazy dog.\" }, "
               "\"str6\": { \"type\": \"string\", \"value\": \"Here are fifteen quotation marks: \\\"\\\"\\\"\\\"\\\"\\\"\\\"\\\"\\\"\\\"\\\"\\\"\\\"\\\"\\\".\" }, "
               "\"str7\": { \"type\": \"string\", \"value\": \"\\\"This,\\\" she said, \\\"is just a pointless statement.\\\"\" } }"))

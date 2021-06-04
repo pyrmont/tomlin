@@ -19,15 +19,15 @@
     (def c (get s i))
     (->> (cond
            (= c 0x08)
-           "\\\\b"
+           "\\b"
            (= c 0x09)
-           "\\\\t"
+           "\\t"
            (= c 0x0A)
-           "\\\\n"
+           "\\n"
            (= c 0x0C)
-           "\\\\f"
+           "\\f"
            (= c 0x0D)
-           "\\\\r"
+           "\\r"
            (= c 0x22)
            "\\\""
            (= c 0x5C)
@@ -35,7 +35,7 @@
            (= c 0x7F)
            (string/format "\\u%04x" c)
            (< c 0x20)
-           (string/format "\\\\u%04x" c)
+           (string/format "\\u%04x" c)
            # 1-byte variant (0xxxxxxx)
            (< c 0x80)
            (string/format "%c" c)
