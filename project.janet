@@ -11,4 +11,5 @@
 
 
 (declare-source
-  :source ["src/tomlin.janet"])
+  :source ["src/tomlin.janet"
+           "src/tomlin"])
