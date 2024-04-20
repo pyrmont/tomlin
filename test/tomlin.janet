@@ -97,4 +97,20 @@
   (is (== expect actual)))
 
 
+(deftest array-of-tables
+  (def expect
+    {:fruits [{:name "apple"
+               :physical {:color "red" :shape "round"}
+               :varieties [{:name "red delicious"}
+                           {:name "granny smith"}]}
+              {:name "banana"
+               :varieties [{:name "plantain"}]}]
+     :products [{:name "Hammer" :sku (int/s64 738594937)}
+                {}
+                {:color "gray" :name "Nail" :sku (int/s64 284758393)}]
+     :x {:y {:z [{:foo true}]}}})
+  (def actual (example "array-of-tables"))
+  (is (== expect actual)))
+
+
 (run-tests!)
