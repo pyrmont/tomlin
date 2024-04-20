@@ -25,14 +25,15 @@
 (defn- get-from-table [target ks std-table?]
   (var t target)
   (var i 0)
-  (while (< i (dec (length ks)))
+  (var last-i (dec (length ks)))
+  (while (< i last-i)
     (def k (get ks i))
     (def v (get t k))
     (case (type v)
       :nil
       (do
         (def next-t @{})
-        (put t k (if std-table? next-t @[next-t]))
+        (put t k next-t)
         (set t next-t))
       :array
       (set t (array/peek v))
