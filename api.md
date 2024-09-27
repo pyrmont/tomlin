@@ -1,6 +1,6 @@
 # Tomlin API
 
-## tomlin
+## lib/converter
 
 [toml-&gt;janet](#toml-janet)
 
@@ -53,5 +53,5 @@ Comments are parsed but are not included in the returned data structure.
 
 This function will raise an error if the string is invalid TOML.
 
-[1]: src/tomlin.janet#L83
+[1]: lib/converter.janet#L84
 

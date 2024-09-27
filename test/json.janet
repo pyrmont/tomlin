@@ -1,6 +1,6 @@
-(import testament :prefix "")
-(import ../src/tomlin)
-(import ../src/tomlin/json)
+(import ../deps/testament/src/testament :prefix "")
+(import ../lib/converter :as tomlin)
+(import ../helpers/json :as helper)
 
 
 (defn- example [basename]
@@ -56,12 +56,12 @@
                                           "value": "backend" } } },
          "title": { "type": "string",
                     "value": "TOML Example" } }`))
-  (def actual (json/janet->json (example "basic")))
+  (def actual (helper/janet->json (example "basic")))
   (is (= expect actual)))
 
 
 (deftest comments
-  (def actual (json/janet->json (example "comments")))
+  (def actual (helper/janet->json (example "comments")))
   (is (= "{  }" actual)))
 
 
@@ -92,7 +92,7 @@
          "not3": { "type": "float", "value": "nan" },
          "oct1": { "type": "integer", "value": "342391" },
          "oct2": { "type": "integer", "value": "493" } }`))
-  (def actual (json/janet->json (example "numbers")))
+  (def actual (helper/janet->json (example "numbers")))
   (is (= expect actual)))
 
 
@@ -111,7 +111,7 @@
               "\"str5\": { \"type\": \"string\", \"value\": \"The quick brown fox jumps over the lazy dog.\" }, "
               "\"str6\": { \"type\": \"string\", \"value\": \"Here are fifteen quotation marks: \\\"\\\"\\\"\\\"\\\"\\\"\\\"\\\"\\\"\\\"\\\"\\\"\\\"\\\"\\\".\" }, "
               "\"str7\": { \"type\": \"string\", \"value\": \"\\\"This,\\\" she said, \\\"is just a pointless statement.\\\"\" } }"))
-  (def actual (json/janet->json (example "strings")))
+  (def actual (helper/janet->json (example "strings")))
   (is (= expect actual)))
 
 
@@ -134,7 +134,7 @@
                    "value": "1979-05-27T00:32:00-07:00" },
          "odt3": { "type": "offset datetime",
                    "value": "1979-05-27T00:32:00.999999-07:00" } }`))
-  (def actual (json/janet->json (example "datetimes")))
+  (def actual (helper/janet->json (example "datetimes")))
   (is (= expect actual)))
 
 (run-tests!)

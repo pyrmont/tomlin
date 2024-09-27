@@ -1,5 +1,5 @@
-(import testament :prefix "")
-(import ../src/tomlin)
+(import ../deps/testament/src/testament :prefix "")
+(import ../lib/converter :as tomlin)
 
 
 (defn- example [basename]

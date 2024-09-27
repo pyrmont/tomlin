@@ -1,4 +1,4 @@
-(import ./tomlin/grammar)
+(import ./grammar)
 
 
 (defn- insert-into-table [target ks v]

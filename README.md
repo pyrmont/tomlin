@@ -15,7 +15,7 @@ It currently supports [TOML v1.0.0][spec].
 
 Add the dependency to your `project.janet` file:
 
-```clojure
+```janet
 (declare-project
   :dependencies ["https://github.com/pyrmont/tomlin"])
 ```
@@ -25,7 +25,7 @@ Add the dependency to your `project.janet` file:
 Tomlin can be used like this:
 
 
-```clojure
+```janet
 (import tomlin)
 
 (-> (slurp "input.toml")

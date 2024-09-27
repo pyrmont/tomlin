@@ -1,6 +1,6 @@
-(import medea)
-(import ../src/tomlin)
-(import ../src/tomlin/json :as tomlin)
+(import ../deps/medea/medea/decode :as medea)
+(import ../lib/converter :as tomlin)
+(import ../helpers/json :as helper)
 
 
 (when (nil? (os/stat "specs"))
@@ -53,7 +53,7 @@
                         (propagate (string json-file ": " err) fib))))
       (def actual (try (-> (slurp toml-file)
                            (tomlin/toml->janet)
-                           (tomlin/janet->json)
+                           (helper/janet->json)
                            (medea/decode))
                        ([err fib]
                         (propagate (string toml-file ": " err) fib))))
