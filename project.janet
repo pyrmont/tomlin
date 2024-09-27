@@ -6,7 +6,7 @@
   :url "https://github.com/pyrmont/tomlin"
   :repo "git+https://github.com/pyrmont/tomlin"
   :dependencies []
-  :dev-dependencies ["https://github.com/janet-lang/json"
+  :dev-dependencies ["https://github.com/pyrmont/medea"
                      "https://github.com/pyrmont/testament"])
 
 # Library

@@ -1,4 +1,4 @@
-(import json)
+(import medea)
 (import ../src/tomlin)
 (import ../src/tomlin/json :as tomlin)
 
@@ -48,13 +48,13 @@
       (def json-file filename)
       (def toml-file (string/replace ".json" ".toml" json-file))
       (def expect (try (-> (slurp json-file)
-                           (json/decode))
+                           (medea/decode))
                        ([err fib]
                         (propagate (string json-file ": " err) fib))))
       (def actual (try (-> (slurp toml-file)
                            (tomlin/toml->janet)
                            (tomlin/janet->json)
-                           (json/decode))
+                           (medea/decode))
                        ([err fib]
                         (propagate (string toml-file ": " err) fib))))
       (validate toml-file expect actual))))
