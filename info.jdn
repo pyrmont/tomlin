@@ -1,0 +1,21 @@
+{:name "Tomlin"
+ :description "A TOML parser for Janet"
+ :version "DEVEL"
+ :author "Michael Camilleri"
+ :license "MIT"
+ :url "https://github.com/pyrmont/tomlin"
+ :repo "git+https://github.com/pyrmont/tomlin"
+
+ :vendored [{:name "medea"
+	     :paths ["LICENSE" "medea/decode.janet"]
+	     :prefix "medea"
+              :url "https://github.com/pyrmont/medea"}
+	    {:name "testament"
+	     :paths["LICENSE" "src/testament.janet"]
+              :prefix "testament"
+              :url "https://github.com/pyrmont/testament"}]
+
+ :artifacts {:libraries [{:prefix "tomlin"
+                          :paths ["deps"
+                                  "lib"
+                                  "init.janet"]}]}}

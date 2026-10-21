@@ -1,0 +1,40 @@
+@{:config @{:installed-with "spork/pm"
+            :pm {:type :file :url "/home/cass/dev/contrib/tomlin"}}
+  :dependencies @[]
+  :files @["/home/cass/dev/contrib/tomlin/venv/tomlin"
+           "/home/cass/dev/contrib/tomlin/venv/tomlin/init.janet"
+           "/home/cass/dev/contrib/tomlin/venv/tomlin/deps"
+           "/home/cass/dev/contrib/tomlin/venv/tomlin/deps/medea"
+           "/home/cass/dev/contrib/tomlin/venv/tomlin/deps/medea/medea"
+           "/home/cass/dev/contrib/tomlin/venv/tomlin/deps/medea/medea/decode.janet"
+           "/home/cass/dev/contrib/tomlin/venv/tomlin/deps/medea/LICENSE"
+           "/home/cass/dev/contrib/tomlin/venv/tomlin/deps/testament"
+           "/home/cass/dev/contrib/tomlin/venv/tomlin/deps/testament/LICENSE"
+           "/home/cass/dev/contrib/tomlin/venv/tomlin/deps/testament/src"
+           "/home/cass/dev/contrib/tomlin/venv/tomlin/deps/testament/src/testament.janet"
+           "/home/cass/dev/contrib/tomlin/venv/tomlin/lib"
+           "/home/cass/dev/contrib/tomlin/venv/tomlin/lib/converter.janet"
+           "/home/cass/dev/contrib/tomlin/venv/tomlin/lib/grammar.janet"]
+  :hooks @[:install]
+  :info {:artifacts {:libraries [{:paths ["deps" "lib" "init.janet"]
+                                  :prefix "tomlin"}]}
+         :author "Michael Camilleri"
+         :description "A TOML parser for Janet"
+         :license "MIT"
+         :name "Tomlin"
+         :repo "git+https://github.com/pyrmont/tomlin"
+         :url "https://github.com/pyrmont/tomlin"
+         :vendored [{:name "medea"
+                     :paths ["LICENSE" "medea/decode.janet"]
+                     :prefix "medea"
+                     :url "https://github.com/pyrmont/medea"}
+                    {:name "testament"
+                     :paths ["LICENSE" "src/testament.janet"]
+                     :prefix "testament"
+                     :url "https://github.com/pyrmont/testament"}]
+         :version "DEVEL"}
+  :installed-with "spork/pm"
+  :local-source "/home/cass/dev/contrib/tomlin"
+  :name "Tomlin"
+  :pm {:type :file :url "/home/cass/dev/contrib/tomlin"}
+  :version "DEVEL-6813f9f-dirty"}
